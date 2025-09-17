@@ -1,0 +1,15 @@
+{
+  "name": "ionq_sample",
+  "version": "1.0.0",
+  "description": "IonQ Code Sample. Job Submission.",
+  "main": "index.js",
+  "author": "Arian Farid",
+  "license": "MIT",
+  "dependencies": {
+    "fastify": "^5.6.0"
+  },
+  "scripts": {
+    "dev": "node src/server"
+  },
+  "type": "module"
+}
