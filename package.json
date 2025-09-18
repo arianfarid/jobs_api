@@ -1,7 +1,7 @@
 {
-  "name": "ionq_sample",
+  "name": "jobs_api",
   "version": "1.0.0",
-  "description": "IonQ Code Sample. Job Submission.",
+  "description": "Job Submission API.",
   "main": "index.js",
   "author": "Arian Farid",
   "license": "MIT",

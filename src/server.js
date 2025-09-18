@@ -11,7 +11,7 @@ const server = Fastify({
 await server.register(fastifySwagger, {
   openapi: {
     info: {
-      title: "IonQ Sample API",
+      title: "Sample API",
       description: "A small API demonstrating jobs + idempotency keys",
       version: "1.0.0",
     },
