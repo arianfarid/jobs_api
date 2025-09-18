@@ -12,7 +12,6 @@ import { randomUUID } from "crypto"
  * @property {string|null} finished_at ISO timestamp when the job finished.
  */
 
-
 /**
  * Jobs Client.
  * Minimal SDK for interacting with Jobs API.
@@ -21,13 +20,13 @@ export class JobsClient {
   /**
    * @param {string} baseUrl Base URL of the Jobs API. Default: "http://localhost:3000"
    */
-    constructor(baseUrl = "http://localhost:3000") {
+  constructor(baseUrl = "http://localhost:3000") {
     this.baseUrl = baseUrl
   }
 
   /**
    * Helper function to generate uuids.
-   * 
+   *
    * @returns {string} UUID v4. Used for generating a unique idempotency key.
    */
   generateKey() {
@@ -36,8 +35,8 @@ export class JobsClient {
 
   /**
    * Helper function to process Fetch API responses.
-   * 
-   * @param {Response} res Fetch API response object. 
+   *
+   * @param {Response} res Fetch API response object.
    * @returns {Promise<any>} Parsed response body.
    * @throws {Error & {status:number, problem:object}} On non 2xx responses.
    */
@@ -54,10 +53,10 @@ export class JobsClient {
 
   /**
    * Create a new Job.
-   * 
+   *
    * @param {object} payload Job payload.
    * @param {object} [opts] Optional parameters
-   * @param {string} [opts.idempotencyKey] Optional idempotency key. If not supplied, one is automatically generated. 
+   * @param {string} [opts.idempotencyKey] Optional idempotency key. If not supplied, one is automatically generated.
    * @returns {Promise<Job>} The created Job object.
    */
   async createJob(payload, { idempotencyKey } = {}) {
