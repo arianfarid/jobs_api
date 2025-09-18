@@ -2,14 +2,14 @@ import { randomUUID } from "crypto"
 
 /**
  * @typedef {Object} Job
- * @property {string} id - UUID of the job.
- * @property {"queued"|"running"|"succeeded"|"failed"|"canceled"} status - Current status.
- * @property {Object} payload - Original payload submitted by the client.
- * @property {Object|null} result - Result data if the job succeeded.
- * @property {Object|null} error - Error details if the job failed.
- * @property {string} created_at - ISO timestamp when the job was created.
- * @property {string|null} updated_at - ISO timestamp of last update.
- * @property {string|null} finished_at - ISO timestamp when the job finished.
+ * @property {string} id UUID of the job.
+ * @property {"queued"|"running"|"succeeded"|"failed"|"canceled"} status Current status.
+ * @property {Object} payload Original payload submitted by the client.
+ * @property {Object|null} result Result data if the job succeeded.
+ * @property {Object|null} error Error details if the job failed.
+ * @property {string} created_at ISO timestamp when the job was created.
+ * @property {string|null} updated_at ISO timestamp of last update.
+ * @property {string|null} finished_at ISO timestamp when the job finished.
  */
 
 
