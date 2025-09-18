@@ -10,9 +10,46 @@ export const JOB_STATUS = {
 }
 
 export default async function jobsRoutes(fastify, opts) {
-  fastify.post("/jobs", async (req, reply) => {
-    const idempotencyKey = req.headers["idempotency-key"]
-    const payload = req.body?.payload
+    fastify.get("/job/:id", async (request, reply) => {
+    try {
+      const client = await pool.connect()
+      const repo = jobsRepository(client)
+      const { id } = request.params;
+      const data = await repo.findById(id)
+      const out = data.rows.map((row) => normalizeJob(row))
+      return reply.code(200).send(out)
+    } catch (err) {
+      request.log.error({ err }, "failed to fetch jobs")
+      return reply.code(500).type("application/problem+json").send({
+        title: "Internal Server Error",
+        status: 500,
+        detail: "Failed to fetch jobs",
+      })
+    } finally {
+      client.release()
+    }
+  })
+  fastify.get("/jobs", async (request, reply) => {
+    try {
+      const client = await pool.connect()
+      const repo = jobsRepository(client)
+      const data = await repo.getAll()
+      const out = data.rows.map((row) => normalizeJob(row))
+      return reply.code(200).send(out)
+    } catch (err) {
+      request.log.error({ err }, "failed to fetch jobs")
+      return reply.code(500).type("application/problem+json").send({
+        title: "Internal Server Error",
+        status: 500,
+        detail: "Failed to fetch jobs",
+      })
+    } finally {
+      client.release()
+    }
+  })
+  fastify.post("/jobs", async (request, reply) => {
+    const idempotencyKey = request.headers["idempotency-key"]
+    const payload = request.body?.payload
 
     // Validate contents
     if (!payload || typeof payload !== "object") {
@@ -31,7 +68,6 @@ export default async function jobsRoutes(fastify, opts) {
       })
     }
 
-    // Always connect to pool, otherwise transactions can break.
     const client = await pool.connect()
     const repo = jobsRepository(client)
     try {
@@ -55,7 +91,6 @@ export default async function jobsRoutes(fastify, opts) {
           row = findByIdResults.rows[0]
           statusCode = 201
         }
-        // Doesn't work, on conflict no rows returned
       } else {
         const insert = await repo.insertJobNoKey(JOB_STATUS.QUEUED.ID, payload)
 
@@ -69,7 +104,7 @@ export default async function jobsRoutes(fastify, opts) {
       return reply.code(statusCode).send(normalizeJob(row))
     } catch (err) {
       await client.query("ROLLBACK").catch(() => {})
-      req.log.error({ err }, "failed to create job")
+      request.log.error({ err }, "failed to create job")
       return reply.code(500).type("application/problem+json").send({
         title: "Internal Server Error",
         status: 500,
@@ -98,12 +133,4 @@ function normalizeJob(r) {
     finished_at: r.finished_at ?? null,
   }
 }
-/**
- * Determines status code from an Insert statement.
- * @param {object} insert Result from Insert statement.
- * @returns Number
- */
-function statusCodeFromInsert(insert) {
-  if (insert.rowCount === 1) return 201
-  return 200
-}
+

@@ -1,4 +1,10 @@
 export const jobsRepository = (client) => {
+  const getAll = async () => {
+    return await client.query(
+      `SELECT jobs.*, job_statuses.status FROM jobs
+            JOIN job_statuses on job_statuses.id = jobs.job_status_id`
+    )
+  }
   const findById = async (jobId) => {
     return await client.query(
       `SELECT jobs.*, job_statuses.status FROM jobs
@@ -42,5 +48,6 @@ export const jobsRepository = (client) => {
     findByKey,
     insertJob,
     insertJobNoKey,
+    getAll,
   }
 }
