@@ -1,33 +1,50 @@
 
 
-# IonQ Sample API
+# Jobs API
 
 A small Fastify + Postgres API demonstrating job creation with idempotency keys.  
-Built as a code sample.
+
 
 ## Getting Started
-(TODO!)
 
 ### Prerequisites
 - Docker & Docker Compose
 - Node.js 20+ (for local development outside Docker)
 
-### Run with Docker
+### Run With Docker
 
 ```bash
 docker compose up --build
 ```
+Once running, the API is available at http://localhost:3000/
+## Docs
 
-## Example API Requests
+Once running, the API docs are available at http://localhost:3000/docs
 
-### Create a job (no idempotency key)
+## Demo
+
+A small script is provided that will:
+
+- Create a job with an auto-generated idempotency key
+- Fetch it back by ID
+- List all jobs
+
+To run the demo:
+
+```bash
+yarn demo
+```
+
+## Example Api Requests
+
+### Create A Job (No Idempotency Key)
 ```bash
 curl -i -X POST localhost:3000/jobs \
   -H 'Content-Type: application/json' \
   -d '{"payload":{"task":"demo"}}'
 ```
 
-### Create a job (with idempotency key)
+### Create A Job (With Idempotency Key)
 ```bash
 curl -i -X POST localhost:3000/jobs \
   -H 'Content-Type: application/json' \
@@ -35,8 +52,37 @@ curl -i -X POST localhost:3000/jobs \
   -d '{"payload":{"task":"demo"}}'
 ```
 
+### Fetch All Jobs
+```bash
+curl -i localhost:3000/jobs
+```
 
-## Future Notes
-Idempotency request hash: Store a hash of the request body with the idempotency key. Mismatched payload request hashes should return `409 Conflict` to prevent accidental misuse.
-Additional endpoints (TODO!): Add GET /jobs and GET /jobs/:id for retrieval.
-SDK support (TODO!): Provide a small client library that automatically generates idempotency keys and handles retries.
+### Fetch A Job By Id
+```bash
+curl -i localhost:3000/jobs/<uuid>
+```
+
+## Sdk Usage
+
+The included SDK provides a simple wrapper around the Jobs API.
+
+### Create Job
+
+```javascript
+const client = new JobsClient();
+const result = await client.createJob({ task: "demo" })
+```
+
+### Fetch Job
+
+```javascript
+const client = new JobsClient();
+const result = await client.getJob('example_id')
+```
+
+### Fetch All Jobs
+
+```javascript
+const client = new JobsClient();
+const results = await client.listJobs()
+```
