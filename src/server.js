@@ -14,7 +14,6 @@ server.get('/db_test', async function handler(req, reply) {
 })
 
 const start = async () => {
-    console.log("HERE")
     try {
         await server.listen({ port: 3000, host: '0.0.0.0' })
     } catch (err) {
