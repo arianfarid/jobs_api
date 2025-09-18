@@ -1,6 +1,25 @@
 import { pool } from "../db.js"
 import { jobsRepository } from "../jobs/jobsRepository.js"
 
+/**
+ * @typedef {Object} Job
+ * @property {string} id UUID of the job.
+ * @property {"queued"|"running"|"succeeded"|"failed"|"canceled"} status Current status.
+ * @property {Object} payload Original payload submitted by the client.
+ * @property {Object|null} result Result data if the job succeeded.
+ * @property {Object|null} error Error details if the job failed.
+ * @property {string} created_at ISO timestamp when the job was created.
+ * @property {string|null} updated_at ISO timestamp of last update.
+ * @property {string|null} finished_at ISO timestamp when the job finished.
+ */
+
+/**
+ * @typedef {Object} ProblemDetail
+ * @property {string} title Short summary of the problem.
+ * @property {number} status HTTP status code.
+ * @property {string} detail Explanation specific to the occurrence.
+ */
+
 export const JOB_STATUS = {
   QUEUED: { ID: 1, STATUS: "queued" },
   RUNNING: { ID: 2, STATUS: "running" },
@@ -45,6 +64,11 @@ export default async function jobsRoutes(fastify, opts) {
     },
     required: ["title", "status", "detail"],
   })
+
+  /**
+   * GET /jobs/:id
+   * @returns {Promise<Job|ProblemDetail>}
+   */
   fastify.get(
     "/jobs/:id",
     {
@@ -93,6 +117,11 @@ export default async function jobsRoutes(fastify, opts) {
       }
     }
   )
+
+  /**
+   * GET /jobs
+   * @returns {Promise<Job[]|ProblemDetail>}
+   */
   fastify.get(
     "/jobs",
     {
@@ -123,6 +152,11 @@ export default async function jobsRoutes(fastify, opts) {
       }
     }
   )
+
+  /**
+   * POST /jobs
+   * @returns {Promise<Job|ProblemDetail>}
+   */
   fastify.post(
     "/jobs",
     {
