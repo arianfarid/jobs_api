@@ -10,14 +10,23 @@ export const JOB_STATUS = {
 }
 
 export default async function jobsRoutes(fastify, opts) {
-    fastify.get("/jobs/:id", async (request, reply) => {
+  fastify.get("/jobs/:id", async (request, reply) => {
     try {
       const client = await pool.connect()
       const repo = jobsRepository(client)
-      const { id } = request.params;
+      const { id } = request.params
       const data = await repo.findById(id)
-      const out = data.rows.map((row) => normalizeJob(row))
-      return reply.code(200).send(out)
+      if (data.rows.length === 0) {
+        return reply
+          .code(404)
+          .type("application/problem+json")
+          .send({
+            title: "Not Found",
+            status: 404,
+            detail: `Job ${id} not found`,
+          })
+      }
+      return reply.code(200).send(normalizeJob(data.rows[0]))
     } catch (err) {
       request.log.error({ err }, "failed to fetch jobs")
       return reply.code(500).type("application/problem+json").send({
@@ -133,4 +142,3 @@ function normalizeJob(r) {
     finished_at: r.finished_at ?? null,
   }
 }
-
