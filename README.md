@@ -17,6 +17,7 @@ First, copy the local .env file
 cp .env.example .env
 ```
 
+Then run docker compose:
 ```bash
 docker compose up --build
 ```
