@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import { query } from './db.js'
+import jobsRoutes from './routes/jobs.js'
 
 const server = Fastify({
     logger: true
@@ -8,6 +9,8 @@ const server = Fastify({
 server.get('/', async function handler(req, reply) {
     return { test: true }
 })
+
+server.register(jobsRoutes)
 
 server.get('/db_test', async function handler(req, reply) {
     return query("SELECT NOW()")

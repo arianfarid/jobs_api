@@ -1,8 +1,10 @@
 import pkg from 'pg';
 const { Pool } = pkg;
 
-const pool = new Pool({
+export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD
 });
 
 /**
@@ -14,3 +16,4 @@ const pool = new Pool({
 export async function query(text, params) {
   return pool.query(text, params);
 }
+

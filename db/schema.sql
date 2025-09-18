@@ -10,9 +10,10 @@ ON CONFLICT DO NOTHING;
 CREATE TABLE IF NOT EXISTS jobs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     job_status_id INT NOT NULL REFERENCES job_statuses(id),
+    idempotency_key TEXT UNIQUE,
     payload JSONB NOT NULL,
-    result JSONB NOT NULL,
-    error JSONB NOT NULL,
+    result JSONB,
+    error JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ,
     finished_at TIMESTAMPTZ
