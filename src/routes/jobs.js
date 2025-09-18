@@ -1,4 +1,5 @@
 import { pool } from "../db.js"
+import { jobsRepository } from "../jobs/jobsRepository.js"
 
 export const JOB_STATUS = {
   QUEUED: { ID: 1, STATUS: "queued" },
@@ -32,57 +33,35 @@ export default async function jobsRoutes(fastify, opts) {
 
     // Always connect to pool, otherwise transactions can break.
     const client = await pool.connect()
+    const repo = jobsRepository(client)
     try {
       await client.query("BEGIN")
       let row, statusCode
 
       if (idempotencyKey) {
-        const insert = await client.query(
-          `INSERT INTO jobs (idempotency_key, job_status_id, payload)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (idempotency_key) 
-            DO NOTHING
-            RETURNING id;`,
-          [idempotencyKey, JOB_STATUS.QUEUED.ID, payload]
+        const insertJobResults = await repo.insertJob(
+          idempotencyKey,
+          JOB_STATUS.QUEUED.ID,
+          payload
         )
-        row = insert.rows[0]
+        row = insertJobResults.rows[0]
         if (!row) {
           // Conflicting, grab by the idempotency_key
-          const queryByKey = await client.query(
-            `SELECT jobs.*, job_statuses.status FROM jobs
-            JOIN job_statuses on job_statuses.id = jobs.job_status_id
-                WHERE idempotency_key = $1`,
-            [idempotencyKey]
-          )
-          row = queryByKey.rows[0]
+          const findByKeyResults = await repo.findByKey(idempotencyKey)
+          row = findByKeyResults.rows[0]
           statusCode = 200
         } else {
-          const queryById = await client.query(
-            `SELECT jobs.*, job_statuses.status FROM jobs
-            JOIN job_statuses on job_statuses.id = jobs.job_status_id
-                WHERE jobs.id = $1`,
-            [row.id]
-          )
-          row = queryById.rows[0]
+          const findByIdResults = await repo.findById(row.id)
+          row = findByIdResults.rows[0]
           statusCode = 201
         }
         // Doesn't work, on conflict no rows returned
       } else {
-        const insert = await client.query(
-          `INSERT INTO jobs (job_status_id, payload)
-            VALUES ($1, $2)
-            RETURNING id
-            `,
-          [JOB_STATUS.QUEUED.ID, payload]
-        )
+        const insert = await repo.insertJobNoKey(JOB_STATUS.QUEUED.ID, payload)
+
         row = insert.rows[0]
-        const queryById = await client.query(
-          `SELECT jobs.*, job_statuses.status FROM jobs
-            JOIN job_statuses on job_statuses.id = jobs.job_status_id
-                WHERE jobs.id = $1`,
-          [row.id]
-        )
-        row = queryById.rows[0]
+        const findByIdResults = await repo.findById(row.id)
+        row = findByIdResults.rows[0]
         statusCode = 201
       }
       await client.query("COMMIT")
