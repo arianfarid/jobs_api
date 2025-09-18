@@ -10,7 +10,7 @@ export const JOB_STATUS = {
 }
 
 export default async function jobsRoutes(fastify, opts) {
-    fastify.get("/job/:id", async (request, reply) => {
+    fastify.get("/jobs/:id", async (request, reply) => {
     try {
       const client = await pool.connect()
       const repo = jobsRepository(client)
