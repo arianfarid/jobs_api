@@ -12,6 +12,10 @@ A small Fastify + Postgres API demonstrating job creation with idempotency keys.
 - Node.js 20+ (for local development outside Docker)
 
 ### Run With Docker
+First, copy the local .env file
+```bash
+cp .env.example .env
+```
 
 ```bash
 docker compose up --build
